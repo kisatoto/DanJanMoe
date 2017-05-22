@@ -42,7 +42,7 @@ bot.on("message", message => {
 
 		if (args[0] == "ping"){
 			console.log("test");
-			mCh.sendMessage(`pong!`);
+			mCh.send(`pong!`);
 			return;
 		}
 
@@ -55,7 +55,7 @@ bot.on("message", message => {
 				if (val.startsWith('d')){
 					val = Number(val.substring(1));
 					if (isNaN(val)){
-						mCh.sendMessage(`Please use either d[number] or just [number]`);
+						mCh.send(`Please use either d[number] or just [number]`);
 						return;	
 					}
 				}
@@ -63,7 +63,7 @@ bot.on("message", message => {
 					val = Number(val);
 					console.log(val);
 					if (isNaN(val)){
-						mCh.sendMessage(`Please use either d[number] or just [number]`);
+						mCh.send(`Please use either d[number] or just [number]`);
 						return;
 					}
 				}
@@ -167,7 +167,7 @@ bot.on("message", message => {
 					result = "ERROR";
 					break;
 				}
-			mCh.sendMessage(`**${result}**`);
+			mCh.send(`**${result}**`);
 			return;
 		}
 
@@ -185,19 +185,19 @@ bot.on("message", message => {
 				}
 			else{
 				if (num>100)
-					mCh.sendMessage("Please use a smaller number.");
+					mCh.send("Please use a smaller number.");
 				else
-					mCh.sendMessage("Please user a bigger number.");
+					mCh.send("Please user a bigger number.");
 			}
 
 			if (num == 1){
-				mCh.sendMessage(`\n	
+				mCh.send(`\n	
 		Your generated adjective is
 	**${list}**`);
 				return;
 			}
 			else if (num>1){
-				mCh.sendMessage(`\n
+				mCh.send(`\n
 		Your generated adjectives are
 	**${list}**`);
 				return;
@@ -207,13 +207,13 @@ bot.on("message", message => {
 //Invite Command
 
 	if (args[0]== "invite"){
-			mCh.sendMessage(`Use this link to add this bot to your server.
+			mCh.send(`Use this link to add this bot to your server.
 \n\thttps://discordapp.com/oauth2/authorize?client_id=285303791937388554&scope=bot&permissions=0`);
 			return;
 	}
 	
 	if (args[0]== "little"){
-			mCh.sendMessage(`youre all jessica's servents`);
+			mCh.send(`youre all jessica's servents`);
 			return;
 	}
 
@@ -221,13 +221,13 @@ bot.on("message", message => {
 	if (args[0]== "cbot"){
 		let question = args.slice(1).toString();
 		if (!question){
-			mCh.sendMessage(`
+			mCh.send(`
 This is the cleverbot command! Use this to talk with the bot. Unfortunately we're using the free API, but if you donate your money to me on paypal, perhaps we can upgrade to a higher plan!`);
 			return;
 		}
 		else {
 	    	cleverbot.write(question, function (response) {
-				mCh.sendMessage(response.output);
+				mCh.send(response.output);
 				return;
 			});
     	}
@@ -236,7 +236,7 @@ This is the cleverbot command! Use this to talk with the bot. Unfortunately we'r
 //All Guilds Command
 
 	if (args[0]=== "guilds"&&msg.author.id=="134201201641127936") {
-            bot.users.get(msg.author.id).sendMessage(Array.from(bot.guilds));
+            bot.users.get(msg.author.id).send(Array.from(bot.guilds));
         	//console.log(Array.from(bot.guilds));
         }
 
@@ -244,7 +244,7 @@ This is the cleverbot command! Use this to talk with the bot. Unfortunately we'r
 
 	if (args[0]== "emojis")
 		//console.log(Array.from(msg.guild.emojis));
-		bot.users.get(msg.author.id).sendMessage(Array.from(msg.guild.emojis));
+		bot.users.get(msg.author.id).send(Array.from(msg.guild.emojis));
 
 	if (args[0]== "filter"){
 		args = args.slice(1);
@@ -259,7 +259,7 @@ This is the cleverbot command! Use this to talk with the bot. Unfortunately we'r
 	}
 //Help Command
 	if (cnt.startsWith(prefix + "help")){
-		mCh.sendMessage(`
+		bot.users.get(msg.author.id).send(`
 **Ping** \n
 	Pings the server.\n
 **Dice** \n
@@ -286,14 +286,14 @@ This is the cleverbot command! Use this to talk with the bot. Unfortunately we'r
 // 	    let args = cnt.split(" ").slice(1);
 // 	    if (args[0] === "new"){
 // 	    	// createProcess++;
-// 	        // mCh.sendMessage(`Type in your character's name now.`);
+// 	        // mCh.send(`Type in your character's name now.`);
 // 	//			setTimeout(inputTimeout, 300000);
 // 			// userCheck = [`${msg.author.bot}`, `${mCh.id}`];
 // 			// lastUsedChannel = mCh.id;
 // 			let name = args[1];
 // 			characterStats[name] = {name: name, author: msg.author.id};
 // 			fs.writeFile('./characterStats.json', JSON.stringify(characterStats), (err) => {if(err) console.error(err)});
-// 	   		mCh.sendMessage(`New character created. Use \`${prefix}character ${name}\` to view the attributes.`);
+// 	   		mCh.send(`New character created. Use \`${prefix}character ${name}\` to view the attributes.`);
 // 			return;
 // 	    }
 // 	    else {
@@ -316,40 +316,40 @@ This is the cleverbot command! Use this to talk with the bot. Unfortunately we'r
 // 			        	 name = cnt.split(" ").slice(3).join(" ");
 // 			        	characterStats[args[0]]= {name: name, desc: desc, title: title, stats: stats, inv: inv, author: author};
 // 						fs.writeFile('./characterStats.json', JSON.stringify(characterStats), (err) => {if(err) console.error(err)});
-// 				   		mCh.sendMessage(`Stats have been saved.`);
+// 				   		mCh.send(`Stats have been saved.`);
 // 			        	return;
 // 			        }
 // 				if (command==="desc"||command==="description"){
 // 			        	 desc = cnt.split(" ").slice(3).join(" ");
 // 			        	characterStats[args[0]]= {name: name, desc: desc, title: title, stats: stats, inv: inv, author: author};
 // 						fs.writeFile('./characterStats.json', JSON.stringify(characterStats), (err) => {if(err) console.error(err)});
-// 				   		mCh.sendMessage(`Stats have been saved.`);
+// 				   		mCh.send(`Stats have been saved.`);
 // 			        	return;
 // 			        }
 // 	        	if (command==="title"||command==="titles"){
 // 			        	 title = cnt.split(" ").slice(3).join(" ");
 // 			        	characterStats[args[0]]= {name: name, desc: desc, title: title, stats: stats, inv: inv, author: author};
 // 						fs.writeFile('./characterStats.json', JSON.stringify(characterStats), (err) => {if(err) console.error(err)});
-// 				   		mCh.sendMessage(`Stats have been saved.`);
+// 				   		mCh.send(`Stats have been saved.`);
 // 			        	return;
 // 			        }
 // 	        	if (command==="stats"){
 // 			        	 stats = cnt.split(" ").slice(3).join(" ");
 // 			        	characterStats[args[0]]= {name: name, desc: desc, title: title, stats: stats, inv: inv, author: author};
 // 						fs.writeFile('./characterStats.json', JSON.stringify(characterStats), (err) => {if(err) console.error(err)});
-// 				   		mCh.sendMessage(`Stats have been saved.`);
+// 				   		mCh.send(`Stats have been saved.`);
 // 			        	return;
 // 			        }
 // 	        	if (command==="inv"||command==="inventory"){
 // 			        	 inv = cnt.split(" ").slice(3).join(" ");
 // 			        	characterStats[args[0]]= {name: name, desc: desc, title: title, stats: stats, inv: inv, author: author};
 // 						fs.writeFile('./characterStats.json', JSON.stringify(characterStats), (err) => {if(err) console.error(err)});
-// 				   		mCh.sendMessage(`Stats have been saved.`);
+// 				   		mCh.send(`Stats have been saved.`);
 // 			        	return;
 // 	        	}
 // 	        	if (command==="view"){
 // 	        	charData = characterStats[name];
-// 	            mCh.sendMessage(`\n
+// 	            mCh.send(`\n
 // **Name**\n
 // ${name}\n
 // **Description**\n
