@@ -12,8 +12,8 @@ function random(min, max){
 
 const fs = require("fs");
 let characterStats = JSON.parse(fs.readFileSync('./characterStats.json', 'utf8'));
-// let adjs = JSON.parse(fs.readFileSync('./adjs.json','utf8'));
 let adjs = JSON.parse(fs.readFileSync('./adjs.json','utf8'));
+let commands = JSON.parse(fs.readFileSync('./commands.json','utf8'));
 const emojiList = ["owo","xd","mew","ethanok"];
 
 const prefix = "!";
@@ -33,10 +33,12 @@ bot.on("message", message => {
 	for (var i=0;i<emojiList.length;i++)
 		if (msg.guild.emojis.find("name",emojiList[i])&&cnt.toLowerCase().includes(emojiList[i])) {
 	        	msg.react(msg.guild.emojis.find("name",emojiList[i]));
-	        };
+        }
 
+//start selector
 	if (cnt.startsWith(prefix)){
 		let args = cnt.substring(1).split(" ");
+		console.log(args);
 
 //Ping Command
 
@@ -204,83 +206,107 @@ bot.on("message", message => {
 			}
 		}
 
-//Invite Command
+	//Invite Command
 
-	if (args[0]== "invite"){
-			mCh.send(`Use this link to add this bot to your server.
-\n\thttps://discordapp.com/oauth2/authorize?client_id=285303791937388554&scope=bot&permissions=0`);
-			return;
-	}
-	
-	if (args[0]== "little"){
-			mCh.send(`youre all jessica's servents`);
-			return;
-	}
-
-//Cleverbot
-	if (args[0]== "cbot"){
-		let question = args.slice(1).toString();
-		if (!question){
-			mCh.send(`
-This is the cleverbot command! Use this to talk with the bot. Unfortunately we're using the free API, but if you donate your money to me on paypal, perhaps we can upgrade to a higher plan!`);
-			return;
-		}
-		else {
-	    	cleverbot.write(question, function (response) {
-				mCh.send(response.output);
+		if (args[0]== "invite"){
+				mCh.send(`Use this link to add this bot to your server.
+	\n\thttps://discordapp.com/oauth2/authorize?client_id=285303791937388554&scope=bot&permissions=0`);
 				return;
-			});
-    	}
-	}
+		}
 
-//All Guilds Command
+	//Cleverbot
+		if (args[0]== "cbot"){
+			let question = args.slice(1).toString();
+			if (!question){
+				mCh.send(`
+	This is the cleverbot command! Use this to talk with the bot. Unfortunately we're using the free API, but if you donate your money to me on paypal, perhaps we can upgrade to a higher plan!`);
+				return;
+			}
+			else {
+		    	cleverbot.write(question, function (response) {
+					mCh.send(response.output);
+					return;
+				});
+	    	}
+		}
 
-	if (args[0]=== "guilds"&&msg.author.id=="134201201641127936") {
-            bot.users.get(msg.author.id).send(Array.from(bot.guilds));
-        	//console.log(Array.from(bot.guilds));
-        }
+	//All Guilds Command
 
-//List All Emojis Command
+		if (args[0]=== "guilds"&&msg.author.id=="134201201641127936") {
+	            bot.users.get(msg.author.id).send(Array.from(bot.guilds));
+	        	//console.log(Array.from(bot.guilds));
+	        }
 
-	if (args[0]== "emojis")
-		//console.log(Array.from(msg.guild.emojis));
-		bot.users.get(msg.author.id).send(Array.from(msg.guild.emojis));
+	//List All Emojis Command
 
-	if (args[0]== "filter"){
-		args = args.slice(1);
-		switch (args[0]){
-			case "add":
-				console.log("add");
-				break;
+		if (args[0]== "emojis")
+			//console.log(Array.from(msg.guild.emojis));
+			bot.users.get(msg.author.id).send(Array.from(msg.guild.emojis));
+
+	//filter
+		if (args[0]== "filter"){
+			args = args.slice(1);
+			switch (args[0]){
+				case "add":
+					console.log("add");
+					break;
+			}
+		}
+
+	//custom
+		if (cnt.startsWith(prefix + "custom")){
+				args = args.slice(1);
+				let command = args[0];
+				console.log(command);
+				let result = args.slice(1).join(" ");
+				console.log(result);
+				if (!commands[msg.guild.id]){
+					commands[msg.guild.id]={};
+				}
+				commands[msg.guild.id][command] = {result: result};
+				console.log(commands);
+				fs.writeFile('./commands.json', JSON.stringify(commands), (err) => {if(err) console.error(err)});
+		}
+
+		if (commands[msg.guild.id][args[0]]) {
+			mCh.send(commands[msg.guild.id][args[0]].result)
+		}
+
+		// for (var i = 0; i < Object.keys(commands[msg.guild.id]).length; i++) {
+		// 	let list = commands[msg.guild.id];
+		// 	let command = args[0];
+		// 	if (cnt.startsWith(prefix+list[command][i])){
+		// 		mCh.send(list[command].result);
+		// 	}
+		// }
+		// console.log(commands[msg.guild.id][0]);
+		// console.log(Object.keys(commands[msg.guild.id]).length);
+
+	//Help Command
+		if (cnt.startsWith(prefix + "help")){
+			bot.users.get(msg.author.id).send(`
+	**Ping** \n
+		Pings the server.\n
+	**Dice** \n
+		\`${prefix}dice [amount]\` \n
+		Rolls a dice, using a defined amount or the default value of six.\n
+	**Flip** \n
+		Flips a coin.\n
+	**Character**\n
+		~~See \`${prefix}char help\` for more details.~~ Currently out of commision.
+	**Magic8**\n
+		\`${prefix}magic8 [question]\` \n
+		Ask the mystical magic 8 ball a question.\n
+	**Adjective**\n
+		\`${prefix}adj [amount]\` \n
+		Generates a certain number of defined adjectives or a default one.\n
+	**Invite**\n
+		Posts the link to add the bot to your own server.\n	
+		`);
+			return;
 		}
 	}
-
-	console.log(args);
-	}
-//Help Command
-	if (cnt.startsWith(prefix + "help")){
-		bot.users.get(msg.author.id).send(`
-**Ping** \n
-	Pings the server.\n
-**Dice** \n
-	\`${prefix}dice [amount]\` \n
-	Rolls a dice, using a defined amount or the default value of six.\n
-**Flip** \n
-	Flips a coin.\n
-**Character**\n
-	See \`${prefix}char help\` for more details.
-**Magic8**\n
-	\`${prefix}magic8 [question]\` \n
-	Ask the mystical magic 8 ball a question.\n
-**Adjective**\n
-	\`${prefix}adj [amount]\` \n
-	Generates a certain number of defined adjectives or a default one.\n
-**Invite**\n
-	Posts the link to add the bot to your own server.\n	
-	`);
-		return;
-	}
-
+});
 // //Character Sheet command
 // 	if (cnt.startsWith(prefix + "character")||cnt.startsWith(prefix + "char")) {
 // 	    let args = cnt.split(" ").slice(1);
@@ -372,7 +398,6 @@ This is the cleverbot command! Use this to talk with the bot. Unfortunately we'r
 // 			}
 // 		}
 // 	}
-});
 // function getdata(char) {
 // 	let name = charData.name;
 // 	let desc = charData.desc;
