@@ -39,7 +39,6 @@ bot.on("message", message => {
 	if (cnt.startsWith(prefix)){
 		let args = cnt.substring(1).split(" ");
 		console.log(args);
-
 //Ping Command
 
 		if (args[0] == "ping"){
@@ -254,7 +253,7 @@ bot.on("message", message => {
 		}
 
 	//custom
-		if (cnt.startsWith(prefix + "custom")){
+		if (args[0]== "custom"){
 				args = args.slice(1);
 				let command = args[0];
 				console.log(command);
@@ -268,8 +267,16 @@ bot.on("message", message => {
 				fs.writeFile('./commands.json', JSON.stringify(commands), (err) => {if(err) console.error(err)});
 		}
 
+//check if custome command
+	if (commands[msg.guild.id]) {
 		if (commands[msg.guild.id][args[0]]) {
 			mCh.send(commands[msg.guild.id][args[0]].result)
+		}
+	}
+
+	//avatar
+		if (args[0]== "avatar") {
+			mCh.send(msg.mentions.users.first().displayAvatarURL);
 		}
 
 		// for (var i = 0; i < Object.keys(commands[msg.guild.id]).length; i++) {
