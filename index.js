@@ -1,19 +1,23 @@
 const Discord = require("discord.js");
+const Cleverbot = require("cleverbot-node");
+var fs = require('fs');
+
+let token = JSON.parse(fs.readFileSync('./logins.json','utf8'));
+let characterStats = JSON.parse(fs.readFileSync('./characterStats.json', 'utf8'));
+let adjs = JSON.parse(fs.readFileSync('./adjs.json','utf8'));
+let commands = JSON.parse(fs.readFileSync('./commands.json','utf8'));
+
 const bot = new Discord.Client();
-bot.login("Mjg1MzAzNzkxOTM3Mzg4NTU0.C5QNYQ.EcDHILrnL_QJDGh4a0jDotGR8gs");
-var Cleverbot = require('cleverbot-node');
-cleverbot = new Cleverbot;
-cleverbot.configure({botapi: "CCCpgfy9mKZtR7KY1Y3OeGjsmiw"});
+const cbot = new Cleverbot;
+
+bot.login(token.DiscToken);
+cbot.configure({botapi: token.CleverToken});
 
 function random(min, max){
 	let rand = Math.floor(Math.random() * (max - min + 1)) + min;
 	return rand;
 }
 
-const fs = require("fs");
-let characterStats = JSON.parse(fs.readFileSync('./characterStats.json', 'utf8'));
-let adjs = JSON.parse(fs.readFileSync('./adjs.json','utf8'));
-let commands = JSON.parse(fs.readFileSync('./commands.json','utf8'));
 const emojiList = ["owo","xd","mew","ethanok"];
 
 const prefix = "!";
@@ -218,11 +222,11 @@ bot.on("message", message => {
 			let question = args.slice(1).toString();
 			if (!question){
 				mCh.send(`
-	This is the cleverbot command! Use this to talk with the bot. Unfortunately we're using the free API, but if you donate your money to me on paypal, perhaps we can upgrade to a higher plan!`);
+	This is the cbot command! Use this to talk with the bot. Unfortunately we're using the free API, but if you donate your money to me on paypal, perhaps we can upgrade to a higher plan!`);
 				return;
 			}
 			else {
-		    	cleverbot.write(question, function (response) {
+		    	cbot.write(question, function (response) {
 					mCh.send(response.output);
 					return;
 				});
@@ -268,11 +272,11 @@ bot.on("message", message => {
 		}
 
 //check if custome command
-	if (commands[msg.guild.id]) {
-		if (commands[msg.guild.id][args[0]]) {
-			mCh.send(commands[msg.guild.id][args[0]].result)
+		if (commands[msg.guild.id]) {
+			if (commands[msg.guild.id][args[0]]) {
+				mCh.send(commands[msg.guild.id][args[0]].result)
+			}
 		}
-	}
 
 	//avatar
 		if (args[0]== "avatar") {
