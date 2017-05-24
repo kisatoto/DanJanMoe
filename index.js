@@ -277,7 +277,10 @@ bot.on("message", message => {
 	//avatar
 		if (args[0]== "avatar") {
 			let Rich = new Discord.RichEmbed();
-			Rich.setImage(msg.mentions.users.first().displayAvatarURL);
+			if (msg.mentions.users.first())
+				Rich.setImage(msg.mentions.users.first().displayAvatarURL);
+			else
+				Rich.setImage(msg.author.displayAvatarURL);
 			mCh.send({embed: Rich});
 		}
 
