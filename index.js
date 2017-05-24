@@ -276,7 +276,10 @@ bot.on("message", message => {
 
 	//avatar
 		if (args[0]== "avatar") {
-			mCh.send(msg.mentions.users.first().displayAvatarURL);
+			let Rich = new Discord.RichEmbed();
+			console.log(Rich);
+			Rich.setImage(msg.mentions.users.first().displayAvatarURL);
+			mCh.send({embed: Rich});
 		}
 
 		// for (var i = 0; i < Object.keys(commands[msg.guild.id]).length; i++) {
