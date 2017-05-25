@@ -69,9 +69,9 @@ bot.on("message", message => {
 		}
     }
 
-		if (msg.mentions.users.first()==bot.user){
+		if (msg.mentions.users.first()){
 			let args = cnt.split(" ");
-			if (args[0]==bot.user.toString()) {
+			if (args[0].includes(bot.user.id)) {
 				let question = args.slice(1).toString();
 		    	cbot.write(question, function (response) {
 					mCh.send(response.output);
