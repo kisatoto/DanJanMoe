@@ -146,6 +146,7 @@ bot.on("message", message => {
 			
 			let question = args.slice(1).toString();
 			let rand = random(1, 20);
+			let Rich = new Discord.RichEmbed();
 			let result;
 			switch (rand){
 				case 1:
@@ -212,7 +213,8 @@ bot.on("message", message => {
 					result = "ERROR";
 					break;
 				}
-			mCh.send(`**${result}**`);
+			Rich.addField("Result" , result);
+			mCh.send({embed:Rich});
 			return;
 		}
 
