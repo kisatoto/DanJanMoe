@@ -1,12 +1,19 @@
 const Discord = require("discord.js");
 const Cleverbot = require("cleverbot-node");
-var fs = require('fs');
+const fs = require('fs');
 
-let token = JSON.parse(fs.readFileSync('./logins.json','utf8'));
-let characterStats = JSON.parse(fs.readFileSync('./characterStats.json', 'utf8'));
-let adjs = JSON.parse(fs.readFileSync('./adjs.json','utf8'));
-let commands = JSON.parse(fs.readFileSync('./commands.json','utf8'));
-let filter = JSON.parse(fs.readFileSync('./filter.json','utf8'));
+let token, characterStats, adjs, commands, filter;
+
+// token = parser("token");
+// characterStats = parser("characterStats");
+// adjs = parser("adjs");
+// commands = parser("commands");
+// filter = parser("filter");
+token = JSON.parse(fs.readFileSync('./logins.json','utf8'));
+characterStats = JSON.parse(fs.readFileSync('./characterStats.json', 'utf8'));
+adjs = JSON.parse(fs.readFileSync('./adjs.json','utf8'));
+commands = JSON.parse(fs.readFileSync('./commands.json','utf8'));
+filter = JSON.parse(fs.readFileSync('./filter.json','utf8'));
 
 const bot = new Discord.Client();
 const cbot = new Cleverbot;
@@ -18,6 +25,15 @@ function random(min, max){
 	let rand = Math.floor(Math.random() * (max - min + 1)) + min;
 	return rand;
 }
+
+// function parser(variable, file){
+// 	var file = file||variable;
+// 	var filepath = './'+file+'.json';
+// 	fs.access(filepath,'utf8', (err) => {
+// 		var obj = err ? JSON.parse(fs.openSync(filepath, 'utf8')) : JSON.parse(fs.readFileSync(filepath,'utf8'));
+// 	});
+// 	return obj;
+// }
 
 const emojiList = ["owo","xd","mew","ethanok"];
 
@@ -37,20 +53,32 @@ bot.on("message", message => {
 
 //Emoji Checker
 
-	for (var i=0;i<emojiList.length;i++){
+	if (mGu){
+		for (var i=0;i<emojiList.length;i++){
 			if (mGu.emojis.find("name",emojiList[i])&&cnt.toLowerCase().includes(emojiList[i])) {
 		        	msg.react(mGu.emojis.find("name",emojiList[i]));
 	        }
-	}
+		}
 
-	if (filter[mGu.id]) {
-		for (var i = 0 ; i < Object.keys(filter[mGu.id]).length; i++) {
-			if (cnt.includes(Object.keys(filter[mGu.id])[i])){
-				msg.delete();
+		if (filter[mGu.id]) {
+			for (var i = 0 ; i < Object.keys(filter[mGu.id]).length; i++) {
+				if (cnt.includes(Object.keys(filter[mGu.id])[i])){
+					msg.delete();
+				}
 			}
 		}
-	}
+    }
 
+		if (msg.mentions.users.first()==bot.user){
+			let args = cnt.split(" ");
+			if (args[0]==bot.user.toString()) {
+				let question = args.slice(1).toString();
+		    	cbot.write(question, function (response) {
+					mCh.send(response.output);
+					return;
+				});
+			}
+		}
 //start selector
 	if (cnt.startsWith(prefix)){
 		let args = cnt.substring(1).split(" ");
@@ -263,13 +291,20 @@ bot.on("message", message => {
 			if (!filter[mGu.id]) {
 				filter[mGu.id]={};
 			}
-			if (args[1]=="add"){
+			if (msg.member.hasPermission("ADMINISTRATOR")&&args[1]=="add"){
 				if (!filter[mGu.id][args[2]]) {
 					filter[mGu.id][args[2]]=[args[2]];
 					fs.writeFile('./filter.json', JSON.stringify(filter), (err) => {if(err) console.error(err)});
 				}
 			}
-		}
+			if (args[1]=="list") {
+				let list = "Filtered words are:";
+				for (var i = 0 ; i < Object.keys(filter[mGu.id]).length; i++) {
+					list = list + "\n\t" + Object.keys(filter[mGu.id])[i]
+				}
+				mCh.send(list);
+			}
+		}	
 
 		if (args[0]== "custom"){
 				args = args.slice(1);
@@ -285,6 +320,7 @@ bot.on("message", message => {
 		}
 
 //check if custome command
+		if  (mGu)
 		if (commands[mGu.id]) {
 			if (commands[mGu.id][args[0]]) {
 				mCh.send(commands[mGu.id][args[0]].result)
@@ -312,26 +348,17 @@ bot.on("message", message => {
 		// console.log(Object.keys(commands[mGu.id]).length);
 
 	//Help Command
-		if (cnt.startsWith(prefix + "help")){
-			bot.users.get(msg.author.id).send(`
-	**Ping** \n
-		Pings the server.\n
-	**Dice** \n
-		\`${prefix}dice [amount]\` \n
-		Rolls a dice, using a defined amount or the default value of six.\n
-	**Flip** \n
-		Flips a coin.\n
-	**Character**\n
-		~~See \`${prefix}char help\` for more details.~~ Currently out of commision.
-	**Magic8**\n
-		\`${prefix}magic8 [question]\` \n
-		Ask the mystical magic 8 ball a question.\n
-	**Adjective**\n
-		\`${prefix}adj [amount]\` \n
-		Generates a certain number of defined adjectives or a default one.\n
-	**Invite**\n
-		Posts the link to add the bot to your own server.\n	
-		`);
+		if (args[0]== "help") {
+			/*bot.users.get(msg.author.id).send(`*/
+			let Rich = new Discord.RichEmbed();
+			Rich.addField("Ping","Pings the server");
+			Rich.addField("Dice",`\`${prefix}dice [amount]\`\nRolls a dice, using a defined amount or the default value of six.`);
+			Rich.addField("Flip","Flips a coin.");
+			Rich.addField("Character","~~See \`${prefix}char help\` for more details.~~\nCurrently out of commision.");
+			Rich.addField("Magic8","\`${prefix}magic8 [question]\` \nAsk the mystical magic 8 ball a question.");
+			Rich.addField("Adjective","\`${prefix}adj [amount]\` \nGenerates a certain number of defined adjectives or a default one.");
+			Rich.addField("Invite","Posts the link to add the bot to your own server.\n	");
+			bot.users.get(msg.author.id).send({embed: Rich});
 			return;
 		}
 	}
