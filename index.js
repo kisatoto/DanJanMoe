@@ -6,6 +6,7 @@ let token = JSON.parse(fs.readFileSync('./logins.json','utf8'));
 let characterStats = JSON.parse(fs.readFileSync('./characterStats.json', 'utf8'));
 let adjs = JSON.parse(fs.readFileSync('./adjs.json','utf8'));
 let commands = JSON.parse(fs.readFileSync('./commands.json','utf8'));
+let filter = JSON.parse(fs.readFileSync('./filter.json','utf8'));
 
 const bot = new Discord.Client();
 const cbot = new Cleverbot;
@@ -26,18 +27,29 @@ bot.on('ready', () => {
 });
 
 bot.on("message", message => {
+	
 	let msg = message;
 	let cnt = msg.content;
 	let mCh = msg.channel;
+	let mGu = msg.guild;
 
 	if (msg.author.bot) return;
 
 //Emoji Checker
 
-	for (var i=0;i<emojiList.length;i++)
-		if (msg.guild.emojis.find("name",emojiList[i])&&cnt.toLowerCase().includes(emojiList[i])) {
-	        	msg.react(msg.guild.emojis.find("name",emojiList[i]));
-        }
+	for (var i=0;i<emojiList.length;i++){
+			if (mGu.emojis.find("name",emojiList[i])&&cnt.toLowerCase().includes(emojiList[i])) {
+		        	msg.react(mGu.emojis.find("name",emojiList[i]));
+	        }
+	}
+
+	if (filter[mGu.id]) {
+		for (var i = 0 ; i < Object.keys(filter[mGu.id]).length; i++) {
+			if (cnt.includes(Object.keys(filter[mGu.id])[i])){
+				msg.delete();
+			}
+		}
+	}
 
 //start selector
 	if (cnt.startsWith(prefix)){
@@ -243,38 +255,39 @@ bot.on("message", message => {
 	//List All Emojis Command
 
 		if (args[0]== "emojis")
-			//console.log(Array.from(msg.guild.emojis));
-			bot.users.get(msg.author.id).send(Array.from(msg.guild.emojis));
+			//console.log(Array.from(mGu.emojis));
+			bot.users.get(msg.author.id).send(Array.from(mGu.emojis));
 
 	//filter
 		if (args[0]== "filter"){
-			args = args.slice(1);
-			switch (args[0]){
-				case "add":
-					console.log("add");
-					break;
+			if (!filter[mGu.id]) {
+				filter[mGu.id]={};
+			}
+			if (args[1]=="add"){
+				if (!filter[mGu.id][args[2]]) {
+					filter[mGu.id][args[2]]=[args[2]];
+					fs.writeFile('./filter.json', JSON.stringify(filter), (err) => {if(err) console.error(err)});
+				}
 			}
 		}
 
-	//custom
 		if (args[0]== "custom"){
 				args = args.slice(1);
 				let command = args[0];
 				console.log(command);
 				let result = args.slice(1).join(" ");
 				console.log(result);
-				if (!commands[msg.guild.id]){
-					commands[msg.guild.id]={};
+				if (!commands[mGu.id]){
+					commands[mGu.id]={};
 				}
-				commands[msg.guild.id][command] = {result: result};
-				console.log(commands);
+				commands[mGu.id][command] = {result: result};
 				fs.writeFile('./commands.json', JSON.stringify(commands), (err) => {if(err) console.error(err)});
 		}
 
 //check if custome command
-		if (commands[msg.guild.id]) {
-			if (commands[msg.guild.id][args[0]]) {
-				mCh.send(commands[msg.guild.id][args[0]].result)
+		if (commands[mGu.id]) {
+			if (commands[mGu.id][args[0]]) {
+				mCh.send(commands[mGu.id][args[0]].result)
 			}
 		}
 
@@ -288,15 +301,15 @@ bot.on("message", message => {
 			mCh.send({embed: Rich});
 		}
 
-		// for (var i = 0; i < Object.keys(commands[msg.guild.id]).length; i++) {
-		// 	let list = commands[msg.guild.id];
+		// for (var i = 0; i < Object.keys(commands[mGu.id]).length; i++) {
+		// 	let list = commands[mGu.id];
 		// 	let command = args[0];
 		// 	if (cnt.startsWith(prefix+list[command][i])){
 		// 		mCh.send(list[command].result);
 		// 	}
 		// }
-		// console.log(commands[msg.guild.id][0]);
-		// console.log(Object.keys(commands[msg.guild.id]).length);
+		// console.log(commands[mGu.id][0]);
+		// console.log(Object.keys(commands[mGu.id]).length);
 
 	//Help Command
 		if (cnt.startsWith(prefix + "help")){
