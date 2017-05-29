@@ -373,8 +373,9 @@ const cbot = new Cleverbot;
 
 if (args[0]== "lmgtfy") {
 			let Rich = new Discord.RichEmbed();
-			let query = args.slice(1).join("+");
-			Rich.addField("Let Me Google That For You","http://lmgtfy.com/?q="+query);
+			let url = args.slice(1).join("+");
+			let query = args.slice(1).join(" ");
+			Rich.addField("Let Me Google That For You","["+query+"](http://lmgtfy.com/?q="+url+")");
 			mCh.send({embed: Rich});
 		}
 
