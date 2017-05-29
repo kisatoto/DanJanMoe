@@ -18,13 +18,17 @@ filter = JSON.parse(fs.readFileSync('./filter.json','utf8'));
 const bot = new Discord.Client();
 const cbot = new Cleverbot;
 
-bot.login(token.DiscToken);
-cbot.configure({botapi: token.CleverToken});
+//Bot Logins
 
-function random(min, max){
-	let rand = Math.floor(Math.random() * (max - min + 1)) + min;
-	return rand;
-}
+	bot.login(token.DiscToken);
+	cbot.configure({botapi: token.CleverToken});
+
+//Functions
+
+	function random(min, max){
+		let rand = Math.floor(Math.random() * (max - min + 1)) + min;
+		return rand;
+	}
 
 // function parser(variable, file){
 // 	var file = file||variable;
@@ -35,31 +39,45 @@ function random(min, max){
 // 	return obj;
 // }
 
-const emojiList = ["owo","xd","mew","ethanok"];
 
-const prefix = "!";
-bot.on('ready', () => {
-  console.log('I am ready!');
-});
+//Consts
 
-bot.on("message", message => {
+	const emojiList = ["owo","xd","mew","ethanok"];
+	const prefix = "!";
+
+//Bot Ready
+
+	bot.on('ready', () => {
+	  console.log('I am ready!');
+	});
+
+//Bot on Message
+
+	bot.on("message", message => {
 	
+//Shorthand initalizer
+
 	let msg = message;
 	let cnt = msg.content;
 	let mCh = msg.channel;
 	let mGu = msg.guild;
 
+//Bot Reject
+
 	if (msg.author.bot) return;
 
-//Emoji Checker
+//Check if guild
 
 	if (mGu){
+
+//Emoji Checker
 		for (var i=0;i<emojiList.length;i++){
 			if (mGu.emojis.find("name",emojiList[i])&&cnt.toLowerCase().includes(emojiList[i])) {
 		        	msg.react(mGu.emojis.find("name",emojiList[i]));
 	        }
 		}
 
+//Filter Checker
 		if (filter[mGu.id]) {
 			for (var i = 0 ; i < Object.keys(filter[mGu.id]).length; i++) {
 				if (cnt.includes(Object.keys(filter[mGu.id])[i])){
@@ -68,7 +86,7 @@ bot.on("message", message => {
 			}
 		}
     }
-
+//Cleverbot Check
 		if (msg.mentions.users.first()){
 			let args = cnt.split(" ");
 			if (args[0].includes(bot.user.id)) {
@@ -224,34 +242,35 @@ bot.on("message", message => {
 			args = args.slice(1);
 			let dic =adjs["adjectives"];
 			let num = args[0]||1;
-			let list = "";
+			let list;
+			let Rich = new Discord.RichEmbed();
 			if (num>0&&num<=100)
+				if (num == 1){
+					mCh.send(`\n	
+			Your generated adjective is
+		**${list}**`);
+					return;
+				}
+				else if (num>1){
+					mCh.send(`\n
+			Your generated adjectives are
+		**${list}**`);
+					return;
+				}
 				for (i = 0; i<num;i++){
 					let rand = random(0,dic.length);
 			        list=list+dic[rand]+"\n\t";
 				}
 			else{
 				if (num>100)
-					mCh.send("Please use a smaller number.");
+					Rich.addField("ERROR","Please use a smaller number.");
 				else
-					mCh.send("Please user a bigger number.");
+					Rich.addField("ERROR","Please user a bigger number.");
 			}
 
-			if (num == 1){
-				mCh.send(`\n	
-		Your generated adjective is
-	**${list}**`);
-				return;
-			}
-			else if (num>1){
-				mCh.send(`\n
-		Your generated adjectives are
-	**${list}**`);
-				return;
-			}
 		}
 
-	//Invite Command
+//Invite Command
 
 		if (args[0]== "invite"){
 				mCh.send(`Use this link to add this bot to your server.
@@ -259,7 +278,7 @@ bot.on("message", message => {
 				return;
 		}
 
-	//Cleverbot
+//Cleverbot
 		if (args[0]== "cbot"){
 			let question = args.slice(1).toString();
 			if (!question){
@@ -275,20 +294,20 @@ bot.on("message", message => {
 	    	}
 		}
 
-	//All Guilds Command
+//All Guilds Command
 
 		if (args[0]=== "guilds"&&msg.author.id=="134201201641127936") {
 	            bot.users.get(msg.author.id).send(Array.from(bot.guilds));
 	        	//console.log(Array.from(bot.guilds));
 	        }
 
-	//List All Emojis Command
+//List All Emojis Command
 
 		if (args[0]== "emojis")
 			//console.log(Array.from(mGu.emojis));
 			bot.users.get(msg.author.id).send(Array.from(mGu.emojis));
 
-	//filter
+//filter
 		if (args[0]== "filter"){
 			if (!filter[mGu.id]) {
 				filter[mGu.id]={};
@@ -329,7 +348,7 @@ bot.on("message", message => {
 			}
 		}
 
-	//avatar
+//avatar
 		if (args[0]== "avatar") {
 			let Rich = new Discord.RichEmbed();
 			if (msg.mentions.users.first())
@@ -349,7 +368,16 @@ bot.on("message", message => {
 		// console.log(commands[mGu.id][0]);
 		// console.log(Object.keys(commands[mGu.id]).length);
 
-	//Help Command
+//lmgtfy
+
+if (args[0]== "lmgtfy") {
+			let Rich = new Discord.RichEmbed();
+			let query = args.slice(1).toString().replace(" ","+");
+			Rich.addField("Let Me Google That For You","http://lmgtfy.com/?q="+query);
+			mCh.send({embed: Rich});
+		}
+
+//Help Command
 		if (args[0]== "help") {
 			/*bot.users.get(msg.author.id).send(`*/
 			let Rich = new Discord.RichEmbed();
@@ -365,6 +393,7 @@ bot.on("message", message => {
 		}
 	}
 });
+
 // //Character Sheet command
 // 	if (cnt.startsWith(prefix + "character")||cnt.startsWith(prefix + "char")) {
 // 	    let args = cnt.split(" ").slice(1);
