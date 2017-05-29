@@ -244,7 +244,7 @@ const cbot = new Cleverbot;
 			let num = args[0]||1;
 			let list;
 			let Rich = new Discord.RichEmbed();
-			if (num>0&&num<=100)
+			if (num>0&&num<=100){
 				if (num == 1){
 					mCh.send(`\n	
 			Your generated adjective is
@@ -261,6 +261,7 @@ const cbot = new Cleverbot;
 					let rand = random(0,dic.length);
 			        list=list+dic[rand]+"\n\t";
 				}
+			}
 			else{
 				if (num>100)
 					Rich.addField("ERROR","Please use a smaller number.");
