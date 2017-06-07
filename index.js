@@ -383,13 +383,13 @@ if (args[0]== "lmgtfy") {
 		if (args[0]== "help") {
 			/*bot.users.get(msg.author.id).send(`*/
 			let Rich = new Discord.RichEmbed();
-			Rich.addField("Ping","Pings the server");
+			Rich.addField("Ping",`Pings the server`);
 			Rich.addField("Dice",`\`${prefix}dice [amount]\`\nRolls a dice, using a defined amount or the default value of six.`);
-			Rich.addField("Flip","Flips a coin.");
-			Rich.addField("Character","~~See \`${prefix}char help\` for more details.~~\nCurrently out of commision.");
-			Rich.addField("Magic8","\`${prefix}magic8 [question]\` \nAsk the mystical magic 8 ball a question.");
-			Rich.addField("Adjective","\`${prefix}adj [amount]\` \nGenerates a certain number of defined adjectives or a default one.");
-			Rich.addField("Invite","Posts the link to add the bot to your own server.\n	");
+			Rich.addField("Flip",`Flips a coin.`);
+			Rich.addField("Character",`~~See \`${prefix}char help\` for more details.~~\nCurrently out of commision.`);
+			Rich.addField("Magic8",`\`${prefix}magic8 [question]\` \nAsk the mystical magic 8 ball a question.`);
+			Rich.addField("Adjective",`\`${prefix}adj [amount]\` \nGenerates a certain number of defined adjectives or a default one.`);
+			Rich.addField("Invite",`Posts the link to add the bot to your own server.\n	`);
 			bot.users.get(msg.author.id).send({embed: Rich});
 			return;
 		}
