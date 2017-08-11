@@ -1,6 +1,7 @@
 const Discord = require("discord.js");
 const Cleverbot = require("cleverbot-node");
 const fs = require('fs');
+const http = require('http');
 
 let token, characterStats, adjs, commands, filter;
 
@@ -49,6 +50,43 @@ const cbot = new Cleverbot;
 
 	bot.on('ready', () => {
 	  console.log('I am ready!');
+
+			// http.get('http://danbooru.donmai.us/posts.json?tags=cake+eating&limit=1&random/', (res) => {
+			//   const { statusCode } = res;
+			//   const contentType = res.headers['content-type'];
+
+			//   let error;
+			//   if (statusCode !== 200) {
+			//     error = new Error('Request Failed.\n' +
+			//                       `Status Code: ${statusCode}`);
+			//   } else if (!/^application\/json/.test(contentType)) {
+			//     error = new Error('Invalid content-type.\n' +
+			//                       `Expected application/json but received ${contentType}`);
+			//   }
+			//   if (error) {
+			//     console.error(error.message);
+			//     // consume response data to free up memory
+			//     res.resume();
+			//     return;
+			//   }
+
+			//   res.setEncoding('utf8');
+			//   let rawData = '';
+			//   res.on('data', (chunk) => { rawData += chunk; });
+			//   res.on('end', () => {
+			//     try {
+			//       const parsedData = JSON.parse(rawData);
+			//       console.log(parsedData);
+			//     } catch (e) {
+			//       console.error(e.message);
+			//     }
+			//   });
+			// }).on('error', (e) => {
+			//   console.error(`Got error: ${e.message}`);
+			// });
+
+			// console.log(file);
+
 	});
 
 //Bot on Message
@@ -371,12 +409,29 @@ const cbot = new Cleverbot;
 
 //lmgtfy
 
-if (args[0]== "lmgtfy") {
+		if (args[0]== "lmgtfy") {
 			let Rich = new Discord.RichEmbed();
 			let url = args.slice(1).join("+");
 			let query = args.slice(1).join(" ");
 			Rich.addField("Let Me Google That For You","["+query+"](http://lmgtfy.com/?q="+url+")");
 			mCh.send({embed: Rich});
+		}
+
+//Cake
+
+		if (args[0]== "cake") {
+			http.get("http://danbooru.donmai.us/posts.json?tags=cake+eating&limit=1&random=true/", (res) => {
+ 				let rawData = '';
+				res.on('data', (chunk) => { rawData += chunk; });
+				res.on('end', () => {
+				    const parsedData = JSON.parse(rawData);
+				    let Rich = new Discord.RichEmbed();
+					Rich.setImage(msg.author.displayAvatarURL);
+					Rich.setTitle("Cake!");
+					Rich.setImage('http://danbooru.donmai.us'+parsedData[0].large_file_url);
+					mCh.send({embed: Rich});
+				});
+			});
 		}
 
 //Help Command
