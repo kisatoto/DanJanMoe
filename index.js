@@ -2,6 +2,7 @@ const Discord = require("discord.js");
 const Cleverbot = require("cleverbot-node");
 const fs = require('fs');
 const http = require('http');
+const https = require('https');
 
 let token, characterStats, adjs, commands, filter;
 
@@ -44,7 +45,7 @@ const cbot = new Cleverbot;
 //Consts
 
 	const emojiList = ["owo","xd","mew","ethanok"];
-	const prefix = "!";
+	const prefix = ">";
 
 //Bot Ready
 
@@ -107,11 +108,13 @@ const cbot = new Cleverbot;
 //Check if guild
 
 	if (mGu){
+		let guildEmojis = mGu.emojis;
+		// let guildArray = Object.keys(filter[mGu.id]);
 
 //Emoji Checker
 		for (var i=0;i<emojiList.length;i++){
-			if (mGu.emojis.find("name",emojiList[i])&&cnt.toLowerCase().includes(emojiList[i])) {
-		        	msg.react(mGu.emojis.find("name",emojiList[i]));
+			if (guildEmojis.find("name",emojiList[i])&&cnt.toLowerCase().includes(emojiList[i])) {
+		        	msg.react(guildEmojis.find("name",emojiList[i]));
 	        }
 		}
 
@@ -120,16 +123,18 @@ const cbot = new Cleverbot;
 			for (var i = 0 ; i < Object.keys(filter[mGu.id]).length; i++) {
 				if (cnt.includes(Object.keys(filter[mGu.id])[i])){
 					msg.delete();
+					return;
 				}
 			}
 		}
     }
+
 //Cleverbot Check
 		if (msg.mentions.users.first()){
 			let args = cnt.split(" ");
 			if (args[0].includes(bot.user.id)) {
 				let question = args.slice(1).toString();
-		    	cbot.write(question, function (response) {
+		    	cbot.write(question, response => {
 					mCh.send(response.output);
 					return;
 				});
@@ -151,7 +156,6 @@ const cbot = new Cleverbot;
 
 		if (args[0] == "roll"||args[0] == "dice"){
 			val = args.slice(1).toString();
-			console.log(val);
 			if (typeof val != "number"){
 				if (val.startsWith('d')){
 					val = Number(val.substring(1));
@@ -312,9 +316,10 @@ const cbot = new Cleverbot;
 //Invite Command
 
 		if (args[0]== "invite"){
-				mCh.send(`Use this link to add this bot to your server.
-	\n\thttps://discordapp.com/oauth2/authorize?client_id=285303791937388554&scope=bot&permissions=0`);
-				return;
+		    let Rich = new Discord.RichEmbed();
+			Rich.addField("Add me you your server!", `[Click here!](https://discordapp.com/oauth2/authorize?client_id=285303791937388554&scope=bot&permissions=0)`);
+			mCh.send({embed: Rich});
+			return;
 		}
 
 //Cleverbot
@@ -322,11 +327,11 @@ const cbot = new Cleverbot;
 			let question = args.slice(1).toString();
 			if (!question){
 				mCh.send(`
-	This is the cbot command! Use this to talk with the bot. Unfortunately we're using the free API, but if you donate your money to me on paypal, perhaps we can upgrade to a higher plan!`);
+	This is the cbot command! Use this to talk with the bot. Unfortunately we're using the free API, but if you donate your money to us at `+"`"+`${prefix}support`+"`"+`, perhaps we can upgrade to a higher plan!`);
 				return;
 			}
 			else {
-		    	cbot.write(question, function (response) {
+		    	cbot.write(question, (response) => {
 					mCh.send(response.output);
 					return;
 				});
@@ -343,8 +348,8 @@ const cbot = new Cleverbot;
 //List All Emojis Command
 
 		if (args[0]== "emojis")
-			//console.log(Array.from(mGu.emojis));
-			bot.users.get(msg.author.id).send(Array.from(mGu.emojis));
+			//console.log(Array.from(guildEmojis));
+			bot.users.get(msg.author.id).send(Array.from(guildEmojis));
 
 //filter
 		if (args[0]== "filter"){
@@ -433,6 +438,107 @@ const cbot = new Cleverbot;
 				});
 			});
 		}
+
+//danooru
+
+		if (args[0]== "danbooru"||args[0]== "db") {
+			args = args.slice(1);
+			let url = "http://danbooru.donmai.us/posts.json?limit=1&random=true&tags="+args.join("+");
+			if (args.length > 2) {
+			    let Rich = new Discord.RichEmbed();
+				Rich.addField("Error","You can only send two tags at a time.");
+				mCh.send({embed: Rich});
+			}
+			else {
+				http.get(url, (res) => {
+			 				let rawData = '';
+							res.on('data', (chunk) => { rawData += chunk; });
+							res.on('end', () => {
+						    const parsedData = JSON.parse(rawData);
+						    let Rich = new Discord.RichEmbed();
+						    if (!parsedData[0])
+								Rich.addField("Error","No results found.");
+							else{
+									Rich.setImage('http://danbooru.donmai.us'+ parsedData[0].large_file_url);
+									Rich.addField("View in browser","http://danbooru.donmai.us/posts/"+ parsedData[0].id);
+									if (parsedData[0].source)
+										Rich.addField("Source", parsedData[0].source);
+									switch (parsedData[0].rating) {
+										case "s":
+											Rich.addField("Rating", "Safe");
+											break;
+										case "q":
+											Rich.addField("Rating", "Questionable");
+											break;
+										case "e":
+											Rich.addField("Rating", "Explicit");
+											break;
+									}
+									Rich.addField("Score", (parsedData[0].up_score-parsedData[0].down_score));
+									Rich.addField("Favorites", parsedData[0].fav_count);
+								}
+							mCh.send({embed: Rich});
+					});
+				});
+			}
+		}
+//gelbooru
+
+		if (args[0]== "gelbooru"||args[0]== "gb") {
+			args = args.slice(1);
+			let url;
+			if (args[0].startsWith("page:")){
+				let page = args[0].substring(5);
+				args = args.slice(1);
+				url = "https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&pid="+page+"&tags="+args.join("+");
+			}
+			else
+				url = "https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&tags="+args.join("+");
+			https.get(url, (res) => {
+	 				let rawData = '';
+					res.on('data', (chunk) => { rawData += chunk; });
+					res.on('end', () => {
+				    let parsedData = JSON.parse(rawData);
+				    let post = parsedData[random(0,Object.keys(parsedData).length-1)]
+				    let Rich = new Discord.RichEmbed();
+				    if (!post)
+						Rich.addField("Error","No results found.");
+					else{
+							console.log(post);
+							Rich.setImage("https:"+post.file_url);
+							// Rich.addField("View in browser","http://danbooru.donmai.us/posts/"+ parsedData[0].id);
+							// if (parsedData[0].source)
+							// 	Rich.addField("Source", parsedData[0].source);
+							// switch (parsedData[0].rating) {
+							// 	case "s":
+							// 		Rich.addField("Rating", "Safe");
+							// 		break;
+							// 	case "q":
+							// 		Rich.addField("Rating", "Questionable");
+							// 		break;
+							// 	case "e":
+							// 		Rich.addField("Rating", "Explicit");
+							// 		break;
+							// }
+							// Rich.addField("Score", (parsedData[0].up_score-parsedData[0].down_score));
+							// Rich.addField("Favorites", parsedData[0].fav_count);
+						}
+					mCh.send({embed: Rich});
+				});
+			});
+		}
+
+//is nsfw
+		if (args[0]== "isnsfw") {
+			let Rich = new Discord.RichEmbed();
+			console.log(mCh.nsfw);
+			if (mCh.nsfw=false)
+				Rich.addField("NSFW Checker!","This channel is NSFW!");
+			else
+				Rich.addField("NSFW Checker!","This channel is **not** NSFW!");
+			mCh.send({embed: Rich});
+		}
+
 
 //Help Command
 		if (args[0]== "help") {
