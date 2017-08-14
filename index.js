@@ -494,39 +494,89 @@ const cbot = new Cleverbot;
 			}
 			else
 				url = "https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&tags="+args.join("+");
+
 			https.get(url, (res) => {
-	 				let rawData = '';
-					res.on('data', (chunk) => { rawData += chunk; });
-					res.on('end', () => {
-				    let parsedData = JSON.parse(rawData);
-				    let post = parsedData[random(0,Object.keys(parsedData).length-1)]
-				    let Rich = new Discord.RichEmbed();
-				    if (!post)
+ 				let rawData = '';
+				res.on('data', (chunk) => { rawData += chunk; });
+				res.on('end', () => {
+	    			let Rich = new Discord.RichEmbed();	
+	    			if (rawData!=""){
+						let parsedData = JSON.parse(rawData);
+						let post = parsedData[random(0,Object.keys(parsedData).length-1)];
+						Rich.setImage("https:"+post.file_url);
+					}
+					else
 						Rich.addField("Error","No results found.");
-					else{
-							console.log(post);
-							Rich.setImage("https:"+post.file_url);
-							// Rich.addField("View in browser","http://danbooru.donmai.us/posts/"+ parsedData[0].id);
-							// if (parsedData[0].source)
-							// 	Rich.addField("Source", parsedData[0].source);
-							// switch (parsedData[0].rating) {
-							// 	case "s":
-							// 		Rich.addField("Rating", "Safe");
-							// 		break;
-							// 	case "q":
-							// 		Rich.addField("Rating", "Questionable");
-							// 		break;
-							// 	case "e":
-							// 		Rich.addField("Rating", "Explicit");
-							// 		break;
-							// }
-							// Rich.addField("Score", (parsedData[0].up_score-parsedData[0].down_score));
-							// Rich.addField("Favorites", parsedData[0].fav_count);
-						}
-					mCh.send({embed: Rich});
+					mCh.send({embed: Rich});						
 				});
+
+
+							    
+										// console.log(rawData);
+										// Rich.addField("View in browser","http://danbooru.donmai.us/posts/"+ parsedData[0].id);
+										// if (parsedData[0].source)
+										// 	Rich.addField("Source", parsedData[0].source);
+										// switch (parsedData[0].rating) {
+										// 	case "s":
+										// 		Rich.addField("Rating", "Safe");
+										// 		break;
+										// 	case "q":
+										// 		Rich.addField("Rating", "Questionable");
+										// 		break;
+										// 	case "e":
+										// 		Rich.addField("Rating", "Explicit");
+										// 		break;
+										// }
+										// Rich.addField("Score", (parsedData[0].up_score-parsedData[0].down_score));
+									// Rich.addField("Favorites", parsedData[0].fav_count);
 			});
 		}
+// //safebooru
+
+// 		if (args[0]== "safebooru"||args[0]== "sb") {
+// 			args = args.slice(1);
+// 			let url;
+// 			if (args[0].startsWith("page:")){
+// 				let page = args[0].substring(5);
+// 				args = args.slice(1);
+// 				url = "http://safebooru.org/index.php?page=dapi&s=post&q=index&json=1&pid="+page+"&tags="+args.join("+");
+// 			}
+// 			else
+// 				url = "http://safebooru.org/index.php?page=dapi&s=post&q=index&json=1&tags="+args.join("+");
+// 			http.get(url, (res) => {
+// 	 				let rawData = '';
+// 					res.on('data', (chunk) => { rawData += chunk; });
+// 					res.on('end', () => {
+// 				    let parsedData = JSON.parse(rawData);
+// 				    let post = parsedData[random(0,Object.keys(parsedData).length-1)]
+// 				    let Rich = new Discord.RichEmbed();
+// 				    if (!post)
+// 						Rich.addField("Error","No results found.");
+// 					else{
+// 							url = "http://safebooru.org//images/"+post.directory+"/"+post.image+"?"+post.id;
+// 							console.log(url);
+// 							Rich.setImage(url);
+// 							// Rich.addField("View in browser","http://danbooru.donmai.us/posts/"+ parsedData[0].id);
+// 							// if (parsedData[0].source)
+// 							// 	Rich.addField("Source", parsedData[0].source);
+// 							// switch (parsedData[0].rating) {
+// 							// 	case "s":
+// 							// 		Rich.addField("Rating", "Safe");
+// 							// 		break;
+// 							// 	case "q":
+// 							// 		Rich.addField("Rating", "Questionable");
+// 							// 		break;
+// 							// 	case "e":
+// 							// 		Rich.addField("Rating", "Explicit");
+// 							// 		break;
+// 							// }
+// 							// Rich.addField("Score", (parsedData[0].up_score-parsedData[0].down_score));
+// 							// Rich.addField("Favorites", parsedData[0].fav_count);
+// 						}
+// 					mCh.send({embed: Rich});
+// 				});
+// 			});
+// 		}
 
 //is nsfw
 		if (args[0]== "isnsfw") {
