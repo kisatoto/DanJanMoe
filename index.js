@@ -11,7 +11,6 @@ const https = require('https');
 const convert = require('xml-js');
 const wiki = require('wikijs').default;
 const popura = require('popura');
-const mal = popura('Kisatoto', 'blackmicrophoneglasses890');
 
 let token, characterStats, adjs, commands, filter, serverSettings;
 
